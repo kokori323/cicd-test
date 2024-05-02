@@ -8,10 +8,12 @@
     "build:client": "webpack --config webpack.client.config.js",
     "build:server": "webpack --config webpack.server.config.js",
     "build": "npm-run-all build:client build:server",
-    "test": "jest"
+    "test": "jest --coverage"
   },
   "jest": {
-    "testEnvironment": "node"
+      "verbose": true,
+      "collectCoverage": true,
+      "coverageDirectory": "coverage"
   },
   "author": "",
   "license": "ISC",
