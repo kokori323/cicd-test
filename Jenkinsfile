@@ -5,7 +5,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 // Checkout code from Git repository
-                git 'https://github.com/kokori323/cicd-test.git'
+                git branch: 'dev', url: 'https://github.com/kokori323/cicd-test.git'
             }
         }
 
