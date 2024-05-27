@@ -36,6 +36,8 @@ pipeline {
                     try {
                         sh 'npm install'
                         sh 'npx jest --coverage'
+                        sh "docker build -t ${DOCKER_IMAGE_NAME} . "
+                        echo 'build image success'
                     } catch (err) {
                         echo "Tests failed: ${err.message}"
                         currentBuild.result = 'FAILURE'
@@ -45,12 +47,11 @@ pipeline {
                 echo 'run tests success'
             }
         }
-        stage('Build Image Docker'){
-            steps{
-                sh "docker build -t ${DOCKER_IMAGE_NAME} . "
-                echo 'build image success'
-            }
-        }
+        // stage('Build Image Docker'){
+        //     steps{
+                
+        //     }
+        // }
 
         stage('Login Dockerhub'){
             steps{
