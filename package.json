@@ -4,7 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    
+    "start": "node index.js",
+    "build:client": "webpack --config webpack.client.config.js",
+    "build:server": "webpack --config webpack.server.config.js",
+    "build": "npm-run-all build:client build:server",
+    "test": "jest --coverage"
   },
   "jest": {
       "verbose": true,

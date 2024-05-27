@@ -1,0 +1,71 @@
+pipeline{
+    agent any
+    environment {
+        DOCKER_IMAGE_NAME = 'demeterict/app08:0.3'
+        DOCKERHUB_CREDENTIALS=credentials('788550e4-610a-467d-90fd-e15016c347ac')
+    }
+    stages{
+        
+        stage('Clone'){
+            steps{
+                git branch: 'dev-admin', url:'https://github.com/Dmit-ICT/cxbox-admin-console-react.git', credentialsId:'github-access-token'
+                echo 'clone repository success'
+            }
+        }
+        stage('Build'){
+            steps{
+                sh 'npm install --legacy-peer-deps'
+                echo 'npm install success'
+                sh "docker build -t ${DOCKER_IMAGE_NAME} . "
+                echo 'build image success'
+            }
+        }
+
+        stage('Login Dockerhub'){
+            steps{
+                sh "echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin"
+                echo 'login dockerhub success'
+            }
+        }
+        
+        stage('Push Image'){
+            steps{
+                sh "docker push ${DOCKER_IMAGE_NAME}"
+                echo 'push image success'
+            }
+        }
+        
+        stage('Check Docker network') {
+            steps {
+                script {
+                    def networkName = 'cxbox-network'
+                    def networkExists = sh(
+                        script: "docker network inspect ${networkName} > /dev/null 2>&1 && echo true || echo false",
+                        returnStdout: true
+                    ).trim()
+                    
+                    if (networkExists == 'false') {
+                        sh "docker network create ${networkName}"
+                        echo "Created Docker network ${networkName}"
+                    } else {
+                        echo "Docker network ${networkName} already exists"
+                    }
+                }
+            }
+        }
+        
+        stage('Run Image'){
+            steps{
+                sh "docker-compose up -d"
+                echo 'run docker-compose success'
+            }
+        }
+        
+    }
+    post {
+        always{
+            sh 'docker logout'
+        }
+    }
+    
+}

@@ -1,0 +1,46 @@
+pipeline {
+    agent any
+    environment {
+        GCP_PROJECT_ID = 'your-gcp-project-id'
+        GCP_COMPUTE_ZONE = 'your-gcp-compute-zone'
+        GCP_CLUSTER_NAME = 'your-gke-cluster-name'
+    }
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'dev', url: 'https://github.com/username/repository.git'
+            }
+        }
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    docker.build('your-image-name:tag') // เปลี่ยน 'your-image-name:tag' เป็นชื่อและเวอร์ชันของ Docker image ที่คุณต้องการสร้าง
+                }
+            }
+        }
+        stage('Push Docker Image') {
+            steps {
+                script {
+                    docker.withRegistry('https://registry.example.com', 'credentials-id') {
+                        docker.image('your-image-name:tag').push('latest') // เปลี่ยน 'your-image-name:tag' เป็นชื่อและเวอร์ชันของ Docker image ที่คุณต้องการ push และ 'credentials-id' เป็น ID ของ Docker credentials ใน Jenkins
+                    }
+                }
+            }
+        }
+        stage('Deploy to GCP') {
+            steps {
+                sh 'gcloud auth activate-service-account --key-file=service-account-key.json' // เปลี่ยน 'service-account-key.json' เป็นชื่อของ service account key file ของคุณใน GCP
+                sh 'gcloud container clusters get-credentials $GCP_CLUSTER_NAME --zone=$GCP_COMPUTE_ZONE' // เปลี่ยนตามค่า environment variables ที่กำหนดไว้ข้างต้น
+                sh 'kubectl set image deployment/deployment-name container-name=your-image-name:tag' // เปลี่ยน 'deployment-name' เป็นชื่อของ deployment ใน GKE และ 'container-name' เป็นชื่อของ container ใน deployment ที่ต้องการอัปเดต
+            }
+        }
+    }
+    post {
+        success {
+            echo 'CI/CD pipeline completed successfully!'
+        }
+        failure {
+            echo 'CI/CD pipeline failed!'
+        }
+    }
+}
