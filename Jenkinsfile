@@ -20,7 +20,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 git branch: 'dev', url: 'https://github.com/kokori323/cicd-test.git'
-                echo 'clone repository success'
+                echo 'clone repository success 001'
             }
         }
         
@@ -42,6 +42,7 @@ pipeline {
                         throw err
                     }
                 }
+                echo 'run tests success'
             }
         }
         stage('Build Image Docker'){
