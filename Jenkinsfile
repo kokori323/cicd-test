@@ -9,10 +9,10 @@ pipeline {
     environment {
         DOCKER_IMAGE_NAME = 'kokori323/automation-test-101'
         DOCKERHUB_CREDENTIALS=credentials('docker-hub-kokori323')
-        GCP_CREDENTIALS = credentials('gcp-service-account-key')
-        GCP_PROJECT = '	test001-422905'
-        GCP_ZONE = 'us-central1-c'
-        GCP_INSTANCE = 'instance-20240519-125406'
+        // GCP_CREDENTIALS = credentials('gcp-service-account-key')
+        // GCP_PROJECT = 'test001-422905'
+        // GCP_ZONE = 'us-central1-c'
+        // GCP_INSTANCE = 'instance-20240519-125406'
     }
 
     //ใช้การอ่านโค้ดโปรเจ็คที่ github "https://github.com/kokori323/cicd-test.git" branch dev 
@@ -65,24 +65,24 @@ pipeline {
             }
         }
 
-        stage('Deploy to VM') {
-            steps {
-                withCredentials([file(credentialsId: 'gcp-service-account-key', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
-                    sh '''
-                    # Authenticate with GCP
-                    gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
-                    gcloud config set project $GCP_PROJECT
+        // stage('Deploy to VM') {
+        //     steps {
+        //         withCredentials([file(credentialsId: 'gcp-service-account-key', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
+        //             sh '''
+        //             # Authenticate with GCP
+        //             gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
+        //             gcloud config set project $GCP_PROJECT
 
-                    # Copy docker-compose file to VM
-                    gcloud compute scp --zone $GCP_ZONE docker-compose.yml $GCP_INSTANCE:~/docker-compose.yml
+        //             # Copy docker-compose file to VM
+        //             gcloud compute scp --zone $GCP_ZONE docker-compose.yml $GCP_INSTANCE:~/docker-compose.yml
 
-                    # SSH into VM and run docker-compose
-                    gcloud compute ssh $GCP_INSTANCE --zone $GCP_ZONE --command 'docker-compose -f ~/docker-compose.yml up -d'
-                    '''
-                    echo 'Deploy to VM success'
-                }
-            }
-        }
+        //             # SSH into VM and run docker-compose
+        //             gcloud compute ssh $GCP_INSTANCE --zone $GCP_ZONE --command 'docker-compose -f ~/docker-compose.yml up -d'
+        //             '''
+        //             echo 'Deploy to VM success'
+        //         }
+        //     }
+        // }
     }
     
     post {
